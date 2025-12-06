@@ -1,18 +1,26 @@
 export interface LinkedInPost {
-  'Post / Tema': string;
+  Post_Tema: string;
+  Enlace: string;
   Fecha: string;
-  'Orgánico / Patrocinado': string;
+  Organico_Patrocinado: string;
   Tipo: string;
-  QUÉ: string;
-  CÓMO: string;
+  QUE: string;
+  COMO: string;
+  Autor: string;
+  Publico: string;
+  Nombre_Campana: string;
+  Fecha_Inicio_Campana: string;
+  Fecha_Fin_Campana: string;
+  Impresiones: number;
   Visualizaciones: number;
+  Visualizaciones_Fuera_Sitio: number;
+  Seguidores: number;
   Recomendaciones: number;
   Comentarios: number;
-  'Veces compartido': number;
-  Impresiones: number;
-  'Porcentaje de clics': number;
+  Veces_Compartido: number;
+  Porcentaje_Clics: number;
   Interacciones: number;
-  'Tasa de interacción': number;
+  Tasa_Interaccion: number;
   [key: string]: string | number;
 }
 
