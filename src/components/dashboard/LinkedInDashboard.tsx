@@ -63,6 +63,18 @@ export function LinkedInDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const dashboardRef = useRef<HTMLDivElement>(null);
 
+  // Debug: Log unique values to understand the data
+  useMemo(() => {
+    if (data.length > 0) {
+      const uniqueQUE = [...new Set(data.map(p => p.QUE))].filter(Boolean);
+      const uniqueCOMO = [...new Set(data.map(p => p.COMO))].filter(Boolean);
+      const uniqueTipo = [...new Set(data.map(p => p.Tipo))].filter(Boolean);
+      console.log('Unique QUE values:', uniqueQUE);
+      console.log('Unique COMO values:', uniqueCOMO);
+      console.log('Unique Tipo values:', uniqueTipo);
+    }
+  }, [data]);
+
   const filteredData = useMemo(() => {
     let result = [...data];
 
@@ -77,20 +89,27 @@ export function LinkedInDashboard() {
 
       // tipos = Tipo (Noticia, Evento, Servicio, Tema Socios)
       if (filters.tipos.length > 0) {
-        const postTipo = String(post.Tipo || 'Ninguno');
-        if (!filters.tipos.includes(postTipo) && !(postTipo === '' && filters.tipos.includes('Ninguno'))) {
+        const postTipo = String(post.Tipo || '').trim();
+        const matchesTipo = filters.tipos.some(t => 
+          t === 'Ninguno' ? (postTipo === '' || !postTipo) : postTipo === t
+        );
+        if (!matchesTipo) return false;
+      }
+
+      // categorias = QUÉ (Educamos, Queremos Que Te Vean, etc)
+      if (filters.categorias.length > 0) {
+        const postQUE = String(post.QUE || '').trim();
+        if (!postQUE || !filters.categorias.includes(postQUE)) {
           return false;
         }
       }
 
-      // categorias = QUÉ (Educamos, Queremos Que Te Vean, etc)
-      if (filters.categorias.length > 0 && !filters.categorias.includes(String(post.QUE || ''))) {
-        return false;
-      }
-
       // comos = CÓMO (CambioConstante, SomosIguales, SomosResponsables)
-      if (filters.comos && filters.comos.length > 0 && !filters.comos.includes(String(post.COMO || ''))) {
-        return false;
+      if (filters.comos && filters.comos.length > 0) {
+        const postCOMO = String(post.COMO || '').trim();
+        if (!postCOMO || !filters.comos.includes(postCOMO)) {
+          return false;
+        }
       }
 
       if (typeof post.Interacciones === 'number' && post.Interacciones < filters.minInteractions) {
