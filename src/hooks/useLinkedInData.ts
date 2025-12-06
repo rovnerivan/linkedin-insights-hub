@@ -44,17 +44,47 @@ export function useLinkedInData(): UseLinkedInDataReturn {
           const colName = columns[index];
           if (!colName) return;
 
-          let value: string | number;
           if (cell === null) {
-            value = '';
+            rowObject[colName] = '';
+            return;
+          }
+
+          const rawValue = cell.v;
+          const formattedValue = cell.f;
+
+          // Handle Google Sheets Date format: "Date(YYYY,M,D)"
+          if (typeof rawValue === 'string' && rawValue.startsWith('Date(')) {
+            // Use the formatted value if available, otherwise parse the Date string
+            if (formattedValue) {
+              rowObject[colName] = formattedValue;
+            } else {
+              const match = rawValue.match(/Date\((\d+),(\d+),(\d+)\)/);
+              if (match) {
+                const [, year, month, day] = match;
+                rowObject[colName] = `${String(parseInt(month) + 1).padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+              } else {
+                rowObject[colName] = rawValue;
+              }
+            }
+            return;
+          }
+
+          // For date columns, prefer the formatted value
+          if (colName === 'Fecha' && formattedValue) {
+            rowObject[colName] = formattedValue;
+            return;
+          }
+
+          let value: string | number;
+          if (rawValue === undefined || rawValue === null) {
+            value = formattedValue || '';
           } else {
-            value = cell.v !== undefined ? cell.v as string | number : (cell.f || '');
-            if (value === null) value = '';
+            value = rawValue as string | number;
           }
 
           if (typeof value === 'number') {
             rowObject[colName] = value;
-          } else if (typeof value === 'string' && value !== '' && !isNaN(parseFloat(value))) {
+          } else if (typeof value === 'string' && value !== '' && !isNaN(parseFloat(value)) && colName !== 'Fecha') {
             rowObject[colName] = parseFloat(value);
           } else {
             rowObject[colName] = value;

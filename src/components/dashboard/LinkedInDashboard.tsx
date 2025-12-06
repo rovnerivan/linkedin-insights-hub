@@ -74,15 +74,15 @@ export function LinkedInDashboard() {
       if (isOrganic && !filters.organico) return false;
       if (!isOrganic && !filters.patrocinado) return false;
 
-      if (filters.tipos.length > 0 && !filters.tipos.includes(post.Tipo)) {
+      if (filters.tipos.length > 0 && !filters.tipos.includes(String(post.Tipo || ''))) {
         return false;
       }
 
-      if (filters.categorias.length > 0 && !filters.categorias.includes(post.QUE)) {
+      if (filters.categorias.length > 0 && !filters.categorias.includes(String(post.QUE || ''))) {
         return false;
       }
 
-      if (filters.estrategias.length > 0 && !filters.estrategias.includes(post.COMO)) {
+      if (filters.estrategias.length > 0 && !filters.estrategias.includes(String(post.COMO || ''))) {
         return false;
       }
 
@@ -105,9 +105,9 @@ export function LinkedInDashboard() {
       const isOrganic = post.Organico_Patrocinado === 'Orgánico';
       if (isOrganic && !filters.organico) return false;
       if (!isOrganic && !filters.patrocinado) return false;
-      if (filters.tipos.length > 0 && !filters.tipos.includes(post.Tipo)) return false;
-      if (filters.categorias.length > 0 && !filters.categorias.includes(post.QUE)) return false;
-      if (filters.estrategias.length > 0 && !filters.estrategias.includes(post.COMO)) return false;
+      if (filters.tipos.length > 0 && !filters.tipos.includes(String(post.Tipo || ''))) return false;
+      if (filters.categorias.length > 0 && !filters.categorias.includes(String(post.QUE || ''))) return false;
+      if (filters.estrategias.length > 0 && !filters.estrategias.includes(String(post.COMO || ''))) return false;
       return true;
     });
   }, [data, filters]);

@@ -32,9 +32,9 @@ export function FiltersSidebar({
     let max = 0;
 
     data.forEach(post => {
-      if (post.Tipo) tiposSet.add(post.Tipo);
-      if (post.QUÉ) categoriasSet.add(post.QUÉ);
-      if (post.CÓMO) estrategiasSet.add(post.CÓMO);
+      if (post.Tipo && typeof post.Tipo === 'string') tiposSet.add(post.Tipo);
+      if (post.QUE && typeof post.QUE === 'string') categoriasSet.add(post.QUE);
+      if (post.COMO && typeof post.COMO === 'string') estrategiasSet.add(post.COMO);
       if (typeof post.Interacciones === 'number' && post.Interacciones > max) {
         max = post.Interacciones;
       }

@@ -36,8 +36,19 @@ const formatNumber = (num: number): string => {
   return num.toLocaleString('es-ES');
 };
 
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return '-';
+const formatDate = (dateValue: string | number | undefined | null): string => {
+  if (dateValue === undefined || dateValue === null || dateValue === '') return '-';
+  
+  // If it's a number (Excel serial date), convert it
+  if (typeof dateValue === 'number') {
+    // Excel serial date: days since Dec 30, 1899
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + dateValue * 24 * 60 * 60 * 1000);
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${date.getDate().toString().padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  }
+  
+  const dateStr = String(dateValue);
   
   // Handle MM/DD/YYYY format from Google Sheets
   const parts = dateStr.split('/');
