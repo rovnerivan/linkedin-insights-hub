@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
-import { LinkedInPost } from '@/hooks/useLinkedInData';
+import type { LinkedInPost } from '@/types/linkedin';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -10,7 +8,8 @@ import {
   ResponsiveContainer,
   Legend,
   Area,
-  ComposedChart
+  ComposedChart,
+  Line
 } from 'recharts';
 
 interface ImpressionsChartProps {

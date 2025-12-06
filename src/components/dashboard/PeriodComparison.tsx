@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { LinkedInPost } from '@/hooks/useLinkedInData';
+import type { LinkedInPost } from '@/types/linkedin';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
