@@ -35,51 +35,6 @@ export function DashboardHeader({
 
   return (
     <header className="mb-8 animate-fade-in">
-      {/* Upload Button - Top */}
-      <div className="mb-4 flex justify-center">
-        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="default" className="gap-2">
-              <Upload className="h-4 w-4" />
-              Subir nuevo extracto de la plataforma
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] w-full max-w-4xl overflow-hidden">
-            <DialogHeader>
-              <DialogTitle className="text-center text-xl">
-                Subir nuevo extracto de LinkedIn
-              </DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <Alert className="border-amber-500/50 bg-amber-500/10">
-                <AlertCircle className="h-4 w-4 text-amber-500" />
-                <AlertDescription className="text-sm text-foreground">
-                  Una vez usted envíe el nuevo documento a través de este formulario, deberá esperar al menos <strong>5 minutos</strong> para que la información se integre a este dashboard.
-                </AlertDescription>
-              </Alert>
-              
-              <Alert className="border-blue-500/50 bg-blue-500/10">
-                <Info className="h-4 w-4 text-blue-500" />
-                <AlertDescription className="text-sm text-foreground">
-                  Si abrió esto por error, ciérrelo sin problemas. Así mismo, si ya envió el nuevo archivo puede cerrarlo y esperar.
-                </AlertDescription>
-              </Alert>
-              
-              <div className="relative h-[60vh] w-full overflow-hidden rounded-lg border">
-                <iframe
-                  src="https://docs.google.com/forms/d/e/1FAIpQLSeCZMfFz7Y0PeGJx8xzK8Y_fCqjG5kH6XqGxR7sMl8CMC6jqQ/viewform?embedded=true"
-                  className="h-full w-full"
-                  title="Formulario de carga de datos"
-                >
-                  Cargando formulario...
-                </iframe>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
       {/* Organization Header */}
       <div className="mb-6 flex flex-col items-center justify-center gap-3 text-center">
         <img 
@@ -112,6 +67,50 @@ export function DashboardHeader({
               </p>
             </div>
           </div>
+
+          {/* Upload Button */}
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" size="sm" className="gap-2">
+                <Upload className="h-4 w-4" />
+                <span className="hidden sm:inline">Subir nuevo extracto</span>
+                <span className="sm:hidden">Subir</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] w-full max-w-4xl overflow-hidden">
+              <DialogHeader>
+                <DialogTitle className="text-center text-xl">
+                  Subir nuevo extracto de LinkedIn
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <Alert className="border-amber-500/50 bg-amber-500/10">
+                  <AlertCircle className="h-4 w-4 text-amber-500" />
+                  <AlertDescription className="text-sm text-foreground">
+                    Una vez usted envíe el nuevo documento a través de este formulario, deberá esperar al menos <strong>5 minutos</strong> para que la información se integre a este dashboard.
+                  </AlertDescription>
+                </Alert>
+                
+                <Alert className="border-blue-500/50 bg-blue-500/10">
+                  <Info className="h-4 w-4 text-blue-500" />
+                  <AlertDescription className="text-sm text-foreground">
+                    Si abrió esto por error, ciérrelo sin problemas. Así mismo, si ya envió el nuevo archivo puede cerrarlo y esperar.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="relative h-[60vh] w-full overflow-hidden rounded-lg border">
+                  <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSeSjuB8OyU3RlFB7kHO16zO1FTh1ccj2fCFJD-GHvv7HUMWWg/viewform?embedded=true"
+                    className="h-full w-full"
+                    title="Formulario de carga de datos"
+                  >
+                    Cargando formulario...
+                  </iframe>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <ExportButtons 
             dashboardRef={dashboardRef}
