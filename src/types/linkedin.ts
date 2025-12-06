@@ -30,6 +30,7 @@ export interface Filters {
   tipos: string[];
   categorias: string[];
   estrategias: string[];
+  comos: string[];
   minInteractions: number;
   startDate: Date | undefined;
   endDate: Date | undefined;

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Filter, RotateCcw, X, Calendar, Tag, Target, Zap, MousePointerClick } from 'lucide-react';
+import { Filter, RotateCcw, X, Calendar, Tag, Target, Zap, MousePointerClick, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DateRangePicker } from './DateRangePicker';
 
@@ -19,6 +19,11 @@ interface FiltersSidebarProps {
   onToggle: () => void;
 }
 
+// Fixed options
+const TIPO_OPTIONS = ['Noticia', 'Evento', 'Servicio', 'Tema Socios', 'Ninguno'];
+const QUE_OPTIONS = ['Educamos', 'Queremos Que Te Vean', 'Somos Humanos', 'Somos Prácticos'];
+const COMO_OPTIONS = ['CambioConstante', 'SomosIguales', 'SomosResponsables'];
+
 export function FiltersSidebar({ 
   data, 
   filters, 
@@ -27,17 +32,14 @@ export function FiltersSidebar({
   isOpen,
   onToggle
 }: FiltersSidebarProps) {
-  const { formatos, tipos, categorias, estrategias, maxInteractions } = useMemo(() => {
+  const { formatos, maxInteractions } = useMemo(() => {
     const formatosSet = new Set<string>();
-    const tiposSet = new Set<string>();
-    const categoriasSet = new Set<string>();
-    const estrategiasSet = new Set<string>();
     let max = 0;
 
     data.forEach(post => {
-      if (post.Tipo && typeof post.Tipo === 'string') formatosSet.add(post.Tipo);
-      if (post.QUE && typeof post.QUE === 'string') tiposSet.add(post.QUE);
-      if (post.COMO && typeof post.COMO === 'string') categoriasSet.add(post.COMO);
+      // Formato comes from the original "Tipo" column in Google Sheets (Artículo, Video, etc)
+      // But we're now using Tipo for Noticia/Evento/Servicio/Tema Socios
+      // So formato should be a different field if it exists
       if (typeof post.Interacciones === 'number' && post.Interacciones > max) {
         max = post.Interacciones;
       }
@@ -45,9 +47,6 @@ export function FiltersSidebar({
 
     return {
       formatos: Array.from(formatosSet).sort(),
-      tipos: Array.from(tiposSet).sort(),
-      categorias: Array.from(categoriasSet).sort(),
-      estrategias: Array.from(estrategiasSet).sort(),
       maxInteractions: Math.max(max, 100)
     };
   }, [data]);
@@ -73,6 +72,13 @@ export function FiltersSidebar({
     onFiltersChange({ ...filters, estrategias: newEsts });
   };
 
+  const toggleComo = (como: string) => {
+    const newComos = filters.comos?.includes(como)
+      ? filters.comos.filter(c => c !== como)
+      : [...(filters.comos || []), como];
+    onFiltersChange({ ...filters, comos: newComos });
+  };
+
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (filters.startDate || filters.endDate) count++;
@@ -80,6 +86,7 @@ export function FiltersSidebar({
     if (filters.tipos.length > 0) count++;
     if (filters.categorias.length > 0) count++;
     if (filters.estrategias.length > 0) count++;
+    if ((filters.comos?.length || 0) > 0) count++;
     if (filters.minInteractions > 0) count++;
     return count;
   }, [filters]);
@@ -188,99 +195,89 @@ export function FiltersSidebar({
 
               <Separator className="my-4 bg-sidebar-border" />
 
-              {/* Formato (Artículo, Video, etc) */}
-              {formatos.length > 0 && (
-                <>
-                  <div className="rounded-lg bg-sidebar-accent/30 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <Tag className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-sidebar-foreground">Formato</h3>
+              {/* Tipo (Noticia, Evento, Servicio, Tema Socios) */}
+              <div className="rounded-lg bg-sidebar-accent/30 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-medium text-sidebar-foreground">Tipo</h3>
+                </div>
+                <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
+                  {TIPO_OPTIONS.map(tipo => (
+                    <div key={tipo} className="flex items-center gap-3">
+                      <Checkbox
+                        id={`tipo-${tipo}`}
+                        checked={filters.tipos.includes(tipo)}
+                        onCheckedChange={() => toggleTipo(tipo)}
+                        className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                      />
+                      <Label 
+                        htmlFor={`tipo-${tipo}`} 
+                        className="cursor-pointer text-sm text-sidebar-foreground"
+                      >
+                        {tipo}
+                      </Label>
                     </div>
-                    <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                      {formatos.map(formato => (
-                        <div key={formato} className="flex items-center gap-3">
-                          <Checkbox
-                            id={`formato-${formato}`}
-                            checked={filters.tipos.includes(formato)}
-                            onCheckedChange={() => toggleTipo(formato)}
-                            className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                          />
-                          <Label 
-                            htmlFor={`formato-${formato}`} 
-                            className="cursor-pointer text-sm text-sidebar-foreground"
-                          >
-                            {formato}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <Separator className="my-4 bg-sidebar-border" />
-                </>
-              )}
+                  ))}
+                </div>
+              </div>
 
-              {/* Tipo (Noticia, Evento, Servicio, etc) - from QUE column */}
-              {tipos.length > 0 && (
-                <>
-                  <div className="rounded-lg bg-sidebar-accent/30 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <Target className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-sidebar-foreground">Tipo</h3>
-                    </div>
-                    <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                      {tipos.map(tipo => (
-                        <div key={tipo} className="flex items-center gap-3">
-                          <Checkbox
-                            id={`tipo-${tipo}`}
-                            checked={filters.categorias.includes(tipo)}
-                            onCheckedChange={() => toggleCategoria(tipo)}
-                            className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                          />
-                          <Label 
-                            htmlFor={`tipo-${tipo}`} 
-                            className="cursor-pointer text-sm text-sidebar-foreground"
-                          >
-                            {tipo}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <Separator className="my-4 bg-sidebar-border" />
-                </>
-              )}
+              <Separator className="my-4 bg-sidebar-border" />
 
-              {/* QUÉ (from COMO column) */}
-              {categorias.length > 0 && (
-                <>
-                  <div className="rounded-lg bg-sidebar-accent/30 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-sidebar-foreground">QUÉ</h3>
+              {/* QUÉ (Strategy) */}
+              <div className="rounded-lg bg-sidebar-accent/30 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-medium text-sidebar-foreground">QUÉ (Strategy)</h3>
+                </div>
+                <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
+                  {QUE_OPTIONS.map(que => (
+                    <div key={que} className="flex items-center gap-3">
+                      <Checkbox
+                        id={`que-${que}`}
+                        checked={filters.categorias.includes(que)}
+                        onCheckedChange={() => toggleCategoria(que)}
+                        className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                      />
+                      <Label 
+                        htmlFor={`que-${que}`} 
+                        className="cursor-pointer text-sm text-sidebar-foreground"
+                      >
+                        {que}
+                      </Label>
                     </div>
-                    <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                      {categorias.map(cat => (
-                        <div key={cat} className="flex items-center gap-3">
-                          <Checkbox
-                            id={`cat-${cat}`}
-                            checked={filters.estrategias.includes(cat)}
-                            onCheckedChange={() => toggleEstrategia(cat)}
-                            className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                          />
-                          <Label 
-                            htmlFor={`cat-${cat}`} 
-                            className="cursor-pointer text-sm text-sidebar-foreground"
-                          >
-                            {cat}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <Separator className="my-4 bg-sidebar-border" />
-                </>
-              )}
+                  ))}
+                </div>
+              </div>
 
+              <Separator className="my-4 bg-sidebar-border" />
+
+              {/* CÓMO (Approach) */}
+              <div className="rounded-lg bg-sidebar-accent/30 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Layers className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-medium text-sidebar-foreground">CÓMO (Approach)</h3>
+                </div>
+                <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
+                  {COMO_OPTIONS.map(como => (
+                    <div key={como} className="flex items-center gap-3">
+                      <Checkbox
+                        id={`como-${como}`}
+                        checked={filters.comos?.includes(como) || false}
+                        onCheckedChange={() => toggleComo(como)}
+                        className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                      />
+                      <Label 
+                        htmlFor={`como-${como}`} 
+                        className="cursor-pointer text-sm text-sidebar-foreground"
+                      >
+                        {como}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator className="my-4 bg-sidebar-border" />
 
               {/* Min Interactions Slider */}
               <div className="rounded-lg bg-sidebar-accent/30 p-4">
