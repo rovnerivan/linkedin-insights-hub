@@ -19,10 +19,7 @@ interface FiltersSidebarProps {
   onToggle: () => void;
 }
 
-// Fixed options
-const TIPO_OPTIONS = ['Noticia', 'Evento', 'Servicio', 'Tema Socios', 'Ninguno'];
-const QUE_OPTIONS = ['Educamos', 'Queremos Que Te Vean', 'Somos Humanos', 'Somos Prácticos'];
-const COMO_OPTIONS = ['CambioConstante', 'SomosIguales', 'SomosResponsables'];
+// These will be extracted dynamically from data if the hardcoded ones don't match
 
 export function FiltersSidebar({ 
   data, 
@@ -32,21 +29,34 @@ export function FiltersSidebar({
   isOpen,
   onToggle
 }: FiltersSidebarProps) {
-  const { formatos, maxInteractions } = useMemo(() => {
-    const formatosSet = new Set<string>();
+  const { tipoOptions, queOptions, comoOptions, maxInteractions } = useMemo(() => {
+    const tipoSet = new Set<string>();
+    const queSet = new Set<string>();
+    const comoSet = new Set<string>();
     let max = 0;
 
     data.forEach(post => {
-      // Formato comes from the original "Tipo" column in Google Sheets (Artículo, Video, etc)
-      // But we're now using Tipo for Noticia/Evento/Servicio/Tema Socios
-      // So formato should be a different field if it exists
+      // Extract unique Tipo values (from the Tipo column)
+      const tipo = String(post.Tipo || '').trim();
+      if (tipo) tipoSet.add(tipo);
+
+      // Extract unique QUE values
+      const que = String(post.QUE || '').trim();
+      if (que) queSet.add(que);
+
+      // Extract unique COMO values
+      const como = String(post.COMO || '').trim();
+      if (como) comoSet.add(como);
+
       if (typeof post.Interacciones === 'number' && post.Interacciones > max) {
         max = post.Interacciones;
       }
     });
 
     return {
-      formatos: Array.from(formatosSet).sort(),
+      tipoOptions: Array.from(tipoSet).sort(),
+      queOptions: Array.from(queSet).sort(),
+      comoOptions: Array.from(comoSet).sort(),
       maxInteractions: Math.max(max, 100)
     };
   }, [data]);
@@ -202,22 +212,26 @@ export function FiltersSidebar({
                   <h3 className="text-sm font-medium text-sidebar-foreground">Tipo</h3>
                 </div>
                 <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                  {TIPO_OPTIONS.map(tipo => (
-                    <div key={tipo} className="flex items-center gap-3">
-                      <Checkbox
-                        id={`tipo-${tipo}`}
-                        checked={filters.tipos.includes(tipo)}
-                        onCheckedChange={() => toggleTipo(tipo)}
-                        className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                      />
-                      <Label 
-                        htmlFor={`tipo-${tipo}`} 
-                        className="cursor-pointer text-sm text-sidebar-foreground"
-                      >
-                        {tipo}
-                      </Label>
-                    </div>
-                  ))}
+                  {tipoOptions.length === 0 ? (
+                    <p className="text-xs text-sidebar-foreground/50">No hay tipos disponibles</p>
+                  ) : (
+                    tipoOptions.map(tipo => (
+                      <div key={tipo} className="flex items-center gap-3">
+                        <Checkbox
+                          id={`tipo-${tipo}`}
+                          checked={filters.tipos.includes(tipo)}
+                          onCheckedChange={() => toggleTipo(tipo)}
+                          className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                        />
+                        <Label 
+                          htmlFor={`tipo-${tipo}`} 
+                          className="cursor-pointer text-sm text-sidebar-foreground"
+                        >
+                          {tipo}
+                        </Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -230,22 +244,26 @@ export function FiltersSidebar({
                   <h3 className="text-sm font-medium text-sidebar-foreground">QUÉ (Strategy)</h3>
                 </div>
                 <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                  {QUE_OPTIONS.map(que => (
-                    <div key={que} className="flex items-center gap-3">
-                      <Checkbox
-                        id={`que-${que}`}
-                        checked={filters.categorias.includes(que)}
-                        onCheckedChange={() => toggleCategoria(que)}
-                        className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                      />
-                      <Label 
-                        htmlFor={`que-${que}`} 
-                        className="cursor-pointer text-sm text-sidebar-foreground"
-                      >
-                        {que}
-                      </Label>
-                    </div>
-                  ))}
+                  {queOptions.length === 0 ? (
+                    <p className="text-xs text-sidebar-foreground/50">No hay categorías disponibles</p>
+                  ) : (
+                    queOptions.map(que => (
+                      <div key={que} className="flex items-center gap-3">
+                        <Checkbox
+                          id={`que-${que}`}
+                          checked={filters.categorias.includes(que)}
+                          onCheckedChange={() => toggleCategoria(que)}
+                          className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                        />
+                        <Label 
+                          htmlFor={`que-${que}`} 
+                          className="cursor-pointer text-sm text-sidebar-foreground"
+                        >
+                          {que}
+                        </Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -258,22 +276,26 @@ export function FiltersSidebar({
                   <h3 className="text-sm font-medium text-sidebar-foreground">CÓMO (Approach)</h3>
                 </div>
                 <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                  {COMO_OPTIONS.map(como => (
-                    <div key={como} className="flex items-center gap-3">
-                      <Checkbox
-                        id={`como-${como}`}
-                        checked={filters.comos?.includes(como) || false}
-                        onCheckedChange={() => toggleComo(como)}
-                        className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                      />
-                      <Label 
-                        htmlFor={`como-${como}`} 
-                        className="cursor-pointer text-sm text-sidebar-foreground"
-                      >
-                        {como}
-                      </Label>
-                    </div>
-                  ))}
+                  {comoOptions.length === 0 ? (
+                    <p className="text-xs text-sidebar-foreground/50">No hay opciones disponibles</p>
+                  ) : (
+                    comoOptions.map(como => (
+                      <div key={como} className="flex items-center gap-3">
+                        <Checkbox
+                          id={`como-${como}`}
+                          checked={filters.comos?.includes(como) || false}
+                          onCheckedChange={() => toggleComo(como)}
+                          className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                        />
+                        <Label 
+                          htmlFor={`como-${como}`} 
+                          className="cursor-pointer text-sm text-sidebar-foreground"
+                        >
+                          {como}
+                        </Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
