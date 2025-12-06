@@ -156,15 +156,18 @@ export function DataTable({ data }: DataTableProps) {
   const columns = [
     { key: 'Post_Tema', label: 'POST / TEMA', width: 'min-w-[250px]' },
     { key: 'Fecha', label: 'FECHA', width: 'w-28' },
-    { key: 'Organico_Patrocinado', label: 'TIPO', width: 'w-28' },
-    { key: 'QUE', label: 'CATEGORÍA', width: 'w-28' },
-    { key: 'Visualizaciones', label: 'VIEWS', width: 'w-24' },
-    { key: 'Recomendaciones', label: 'LIKES', width: 'w-24' },
-    { key: 'Comentarios', label: 'COMMENTS', width: 'w-28' },
-    { key: 'Veces_Compartido', label: 'SHARES', width: 'w-24' },
-    { key: 'Impresiones', label: 'IMPR.', width: 'w-24' },
-    { key: 'Interacciones', label: 'INTERACT.', width: 'w-28' },
-    { key: 'Tasa_Interaccion', label: 'ENG. RATE', width: 'w-28' },
+    { key: 'Organico_Patrocinado', label: 'ORG/PAT', width: 'w-24' },
+    { key: 'Tipo', label: 'FORMATO', width: 'w-28' },
+    { key: 'QUE', label: 'TIPO', width: 'w-32' },
+    { key: 'COMO', label: 'QUÉ', width: 'w-28' },
+    { key: 'Visualizaciones', label: 'Visualizaciones', width: 'w-28' },
+    { key: 'Recomendaciones', label: 'Recomendaciones', width: 'w-32' },
+    { key: 'Comentarios', label: 'Comentarios', width: 'w-28' },
+    { key: 'Veces_Compartido', label: 'Veces compartido', width: 'w-32' },
+    { key: 'Impresiones', label: 'Impresiones', width: 'w-28' },
+    { key: 'Porcentaje_Clics', label: '% Clics', width: 'w-24' },
+    { key: 'Interacciones', label: 'Interacciones', width: 'w-28' },
+    { key: 'Tasa_Interaccion', label: 'Tasa interacción', width: 'w-32' },
   ];
 
   return (
@@ -229,7 +232,9 @@ export function DataTable({ data }: DataTableProps) {
                       {row.Organico_Patrocinado || '-'}
                     </span>
                   </TableCell>
+                  <TableCell>{row.Tipo || '-'}</TableCell>
                   <TableCell>{row.QUE || '-'}</TableCell>
+                  <TableCell>{row.COMO || '-'}</TableCell>
                   <TableCell className="text-right">
                     {typeof row.Visualizaciones === 'number' ? formatNumber(row.Visualizaciones) : '-'}
                   </TableCell>
@@ -244,6 +249,11 @@ export function DataTable({ data }: DataTableProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     {typeof row.Impresiones === 'number' ? formatNumber(row.Impresiones) : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {typeof row.Porcentaje_Clics === 'number' 
+                      ? `${(row.Porcentaje_Clics * 100).toFixed(2)}%` 
+                      : '-'}
                   </TableCell>
                   <TableCell className="text-right">
                     {typeof row.Interacciones === 'number' ? row.Interacciones.toLocaleString('es-ES') : '-'}
