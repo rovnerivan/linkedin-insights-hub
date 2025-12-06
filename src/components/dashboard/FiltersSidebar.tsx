@@ -27,22 +27,24 @@ export function FiltersSidebar({
   isOpen,
   onToggle
 }: FiltersSidebarProps) {
-  const { tipos, categorias, estrategias, maxInteractions } = useMemo(() => {
+  const { formatos, tipos, categorias, estrategias, maxInteractions } = useMemo(() => {
+    const formatosSet = new Set<string>();
     const tiposSet = new Set<string>();
     const categoriasSet = new Set<string>();
     const estrategiasSet = new Set<string>();
     let max = 0;
 
     data.forEach(post => {
-      if (post.Tipo && typeof post.Tipo === 'string') tiposSet.add(post.Tipo);
-      if (post.QUE && typeof post.QUE === 'string') categoriasSet.add(post.QUE);
-      if (post.COMO && typeof post.COMO === 'string') estrategiasSet.add(post.COMO);
+      if (post.Tipo && typeof post.Tipo === 'string') formatosSet.add(post.Tipo);
+      if (post.QUE && typeof post.QUE === 'string') tiposSet.add(post.QUE);
+      if (post.COMO && typeof post.COMO === 'string') categoriasSet.add(post.COMO);
       if (typeof post.Interacciones === 'number' && post.Interacciones > max) {
         max = post.Interacciones;
       }
     });
 
     return {
+      formatos: Array.from(formatosSet).sort(),
       tipos: Array.from(tiposSet).sort(),
       categorias: Array.from(categoriasSet).sort(),
       estrategias: Array.from(estrategiasSet).sort(),
@@ -186,21 +188,52 @@ export function FiltersSidebar({
 
               <Separator className="my-4 bg-sidebar-border" />
 
-              {/* Category (Tipo) */}
-              {tipos.length > 0 && (
+              {/* Formato (Artículo, Video, etc) */}
+              {formatos.length > 0 && (
                 <>
                   <div className="rounded-lg bg-sidebar-accent/30 p-4">
                     <div className="mb-3 flex items-center gap-2">
                       <Tag className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-sidebar-foreground">Category (Tipo)</h3>
+                      <h3 className="text-sm font-medium text-sidebar-foreground">Formato</h3>
+                    </div>
+                    <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
+                      {formatos.map(formato => (
+                        <div key={formato} className="flex items-center gap-3">
+                          <Checkbox
+                            id={`formato-${formato}`}
+                            checked={filters.tipos.includes(formato)}
+                            onCheckedChange={() => toggleTipo(formato)}
+                            className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
+                          />
+                          <Label 
+                            htmlFor={`formato-${formato}`} 
+                            className="cursor-pointer text-sm text-sidebar-foreground"
+                          >
+                            {formato}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <Separator className="my-4 bg-sidebar-border" />
+                </>
+              )}
+
+              {/* Tipo (Noticia, Evento, Servicio, etc) - from QUE column */}
+              {tipos.length > 0 && (
+                <>
+                  <div className="rounded-lg bg-sidebar-accent/30 p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <Target className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-medium text-sidebar-foreground">Tipo</h3>
                     </div>
                     <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
                       {tipos.map(tipo => (
                         <div key={tipo} className="flex items-center gap-3">
                           <Checkbox
                             id={`tipo-${tipo}`}
-                            checked={filters.tipos.includes(tipo)}
-                            onCheckedChange={() => toggleTipo(tipo)}
+                            checked={filters.categorias.includes(tipo)}
+                            onCheckedChange={() => toggleCategoria(tipo)}
                             className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
                           />
                           <Label 
@@ -217,21 +250,21 @@ export function FiltersSidebar({
                 </>
               )}
 
-              {/* QUÉ (Strategy) */}
+              {/* QUÉ (from COMO column) */}
               {categorias.length > 0 && (
                 <>
                   <div className="rounded-lg bg-sidebar-accent/30 p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <Target className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-sidebar-foreground">QUÉ (Strategy)</h3>
+                      <Zap className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-medium text-sidebar-foreground">QUÉ</h3>
                     </div>
                     <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
                       {categorias.map(cat => (
                         <div key={cat} className="flex items-center gap-3">
                           <Checkbox
                             id={`cat-${cat}`}
-                            checked={filters.categorias.includes(cat)}
-                            onCheckedChange={() => toggleCategoria(cat)}
+                            checked={filters.estrategias.includes(cat)}
+                            onCheckedChange={() => toggleEstrategia(cat)}
                             className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
                           />
                           <Label 
@@ -248,36 +281,6 @@ export function FiltersSidebar({
                 </>
               )}
 
-              {/* CÓMO (Approach) */}
-              {estrategias.length > 0 && (
-                <>
-                  <div className="rounded-lg bg-sidebar-accent/30 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-sidebar-foreground">CÓMO (Approach)</h3>
-                    </div>
-                    <div className="max-h-48 space-y-2 overflow-y-auto pr-2">
-                      {estrategias.map(est => (
-                        <div key={est} className="flex items-center gap-3">
-                          <Checkbox
-                            id={`est-${est}`}
-                            checked={filters.estrategias.includes(est)}
-                            onCheckedChange={() => toggleEstrategia(est)}
-                            className="border-sidebar-foreground/30 data-[state=checked]:bg-primary"
-                          />
-                          <Label 
-                            htmlFor={`est-${est}`} 
-                            className="cursor-pointer text-sm text-sidebar-foreground"
-                          >
-                            {est}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <Separator className="my-4 bg-sidebar-border" />
-                </>
-              )}
 
               {/* Min Interactions Slider */}
               <div className="rounded-lg bg-sidebar-accent/30 p-4">

@@ -74,14 +74,17 @@ export function LinkedInDashboard() {
       if (isOrganic && !filters.organico) return false;
       if (!isOrganic && !filters.patrocinado) return false;
 
+      // tipos = Formato (Artículo, Video, etc) - filters by post.Tipo
       if (filters.tipos.length > 0 && !filters.tipos.includes(String(post.Tipo || ''))) {
         return false;
       }
 
+      // categorias = Tipo (Noticia, Evento, etc) - filters by post.QUE
       if (filters.categorias.length > 0 && !filters.categorias.includes(String(post.QUE || ''))) {
         return false;
       }
 
+      // estrategias = QUÉ - filters by post.COMO
       if (filters.estrategias.length > 0 && !filters.estrategias.includes(String(post.COMO || ''))) {
         return false;
       }
