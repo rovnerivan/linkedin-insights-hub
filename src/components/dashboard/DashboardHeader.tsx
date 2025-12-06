@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ExportButtons } from './ExportButtons';
+import camaraLogo from '@/assets/camara-logo.png';
 
 interface DashboardHeaderProps {
   totalFollowers: number;
@@ -23,6 +24,18 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   return (
     <header className="mb-8 animate-fade-in">
+      {/* Organization Header */}
+      <div className="mb-6 flex flex-col items-center justify-center gap-3 text-center">
+        <img 
+          src={camaraLogo} 
+          alt="Cámara Oficial de Comercio de España en el Perú" 
+          className="h-16 w-16 object-contain sm:h-20 sm:w-20"
+        />
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">
+          Cámara Oficial de Comercio de España en el Perú
+        </h2>
+      </div>
+
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">
