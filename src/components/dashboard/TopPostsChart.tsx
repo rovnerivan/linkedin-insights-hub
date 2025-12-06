@@ -18,18 +18,29 @@ interface TopPostsChartProps {
 export function TopPostsChart({ data }: TopPostsChartProps) {
   const chartData = useMemo(() => {
     return [...data]
-      .filter(post => typeof post.Interacciones === 'number')
+      .filter(post => typeof post.Interacciones === 'number' && post.Interacciones > 0)
       .sort((a, b) => (b.Interacciones || 0) - (a.Interacciones || 0))
       .slice(0, 10)
       .map(post => ({
-        name: String(post['Post / Tema'] || 'Sin título').substring(0, 35) + 
-              (String(post['Post / Tema'] || '').length > 35 ? '...' : ''),
-        fullName: post['Post / Tema'] || 'Sin título',
+        name: String(post.Post_Tema || 'Sin título').substring(0, 35) + 
+              (String(post.Post_Tema || '').length > 35 ? '...' : ''),
+        fullName: post.Post_Tema || 'Sin título',
         interactions: post.Interacciones || 0
       }));
   }, [data]);
 
-  const maxValue = Math.max(...chartData.map(d => d.interactions));
+  const maxValue = Math.max(...chartData.map(d => d.interactions), 1);
+
+  if (chartData.length === 0) {
+    return (
+      <div className="chart-container animate-fade-in" style={{ animationDelay: '800ms' }}>
+        <h3 className="mb-4 text-lg font-semibold text-foreground">Top 10 Posts por Interacciones</h3>
+        <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+          No hay datos disponibles
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="chart-container animate-fade-in" style={{ animationDelay: '800ms' }}>

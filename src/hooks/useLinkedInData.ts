@@ -33,8 +33,11 @@ export function useLinkedInData(): UseLinkedInDataReturn {
       const rawJson = JSON.parse(jsonString);
 
       const columns: string[] = rawJson.table.cols.map((col: { label: string }) => col.label);
+      
+      // Log columns for debugging
+      console.log('Google Sheets columns:', columns);
 
-      const transformedData: LinkedInPost[] = rawJson.table.rows.map((row: { c: Array<{ v?: unknown; f?: string } | null> }) => {
+      const transformedData: LinkedInPost[] = rawJson.table.rows.map((row: { c: Array<{ v?: unknown; f?: string } | null> }, rowIndex: number) => {
         const rowObject: Record<string, string | number> = {};
         
         row.c.forEach((cell, index) => {
@@ -57,6 +60,11 @@ export function useLinkedInData(): UseLinkedInDataReturn {
             rowObject[colName] = value;
           }
         });
+
+        // Log first row for debugging
+        if (rowIndex === 0) {
+          console.log('First row data:', rowObject);
+        }
 
         return rowObject as LinkedInPost;
       });

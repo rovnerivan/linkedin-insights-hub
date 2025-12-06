@@ -13,7 +13,6 @@ import { PeriodComparison } from './PeriodComparison';
 import { LoadingSkeleton } from './LoadingSkeleton';
 import { ErrorState } from './ErrorState';
 import { Eye, MousePointerClick, Percent, FileText } from 'lucide-react';
-import { parse, isWithinInterval, parseISO } from 'date-fns';
 
 const initialFilters: Filters = {
   organico: true,
@@ -32,25 +31,12 @@ const initialFilters: Filters = {
 const parseDate = (dateStr: string): Date | null => {
   if (!dateStr) return null;
   
-  try {
-    const isoDate = parseISO(dateStr);
-    if (!isNaN(isoDate.getTime())) return isoDate;
-  } catch {
-    // Continue
-  }
-  
-  try {
-    const parsed = parse(dateStr, 'dd/MM/yyyy', new Date());
-    if (!isNaN(parsed.getTime())) return parsed;
-  } catch {
-    // Continue
-  }
-  
-  try {
-    const parsed = parse(dateStr, 'yyyy-MM-dd', new Date());
-    if (!isNaN(parsed.getTime())) return parsed;
-  } catch {
-    // Return null
+  // Handle MM/DD/YYYY format from Google Sheets
+  const parts = dateStr.split('/');
+  if (parts.length === 3) {
+    const [month, day, year] = parts;
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    if (!isNaN(date.getTime())) return date;
   }
   
   return null;
@@ -66,7 +52,7 @@ const filterDataByDateRange = (
   return data.filter(post => {
     const postDate = parseDate(post.Fecha);
     if (!postDate) return false;
-    return isWithinInterval(postDate, { start: startDate, end: endDate });
+    return postDate >= startDate && postDate <= endDate;
   });
 };
 
@@ -84,7 +70,7 @@ export function LinkedInDashboard() {
     }
 
     return result.filter(post => {
-      const isOrganic = post['Orgánico / Patrocinado'] === 'Orgánico';
+      const isOrganic = post.Organico_Patrocinado === 'Orgánico';
       if (isOrganic && !filters.organico) return false;
       if (!isOrganic && !filters.patrocinado) return false;
 
@@ -92,11 +78,11 @@ export function LinkedInDashboard() {
         return false;
       }
 
-      if (filters.categorias.length > 0 && !filters.categorias.includes(post.QUÉ)) {
+      if (filters.categorias.length > 0 && !filters.categorias.includes(post.QUE)) {
         return false;
       }
 
-      if (filters.estrategias.length > 0 && !filters.estrategias.includes(post.CÓMO)) {
+      if (filters.estrategias.length > 0 && !filters.estrategias.includes(post.COMO)) {
         return false;
       }
 
@@ -116,12 +102,12 @@ export function LinkedInDashboard() {
     const result = filterDataByDateRange(data, filters.compareStartDate, filters.compareEndDate);
 
     return result.filter(post => {
-      const isOrganic = post['Orgánico / Patrocinado'] === 'Orgánico';
+      const isOrganic = post.Organico_Patrocinado === 'Orgánico';
       if (isOrganic && !filters.organico) return false;
       if (!isOrganic && !filters.patrocinado) return false;
       if (filters.tipos.length > 0 && !filters.tipos.includes(post.Tipo)) return false;
-      if (filters.categorias.length > 0 && !filters.categorias.includes(post.QUÉ)) return false;
-      if (filters.estrategias.length > 0 && !filters.estrategias.includes(post.CÓMO)) return false;
+      if (filters.categorias.length > 0 && !filters.categorias.includes(post.QUE)) return false;
+      if (filters.estrategias.length > 0 && !filters.estrategias.includes(post.COMO)) return false;
       return true;
     });
   }, [data, filters]);
@@ -137,7 +123,7 @@ export function LinkedInDashboard() {
 
     const avgEngagement = filteredData.length > 0
       ? filteredData.reduce((sum, item) => 
-          sum + (typeof item['Tasa de interacción'] === 'number' ? item['Tasa de interacción'] : 0), 0
+          sum + (typeof item.Tasa_Interaccion === 'number' ? item.Tasa_Interaccion : 0), 0
         ) / filteredData.length * 100
       : 0;
 
@@ -151,9 +137,9 @@ export function LinkedInDashboard() {
 
   const exportToCSV = useCallback(() => {
     const headers = [
-      'Post / Tema', 'Fecha', 'Orgánico / Patrocinado', 'Tipo', 'QUÉ', 'CÓMO',
-      'Visualizaciones', 'Recomendaciones', 'Comentarios', 'Veces compartido',
-      'Impresiones', 'Porcentaje de clics', 'Interacciones', 'Tasa de interacción'
+      'Post_Tema', 'Fecha', 'Organico_Patrocinado', 'Tipo', 'QUE', 'COMO',
+      'Visualizaciones', 'Recomendaciones', 'Comentarios', 'Veces_Compartido',
+      'Impresiones', 'Porcentaje_Clics', 'Interacciones', 'Tasa_Interaccion'
     ];
 
     const csvContent = [

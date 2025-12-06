@@ -29,6 +29,30 @@ type SortDirection = 'asc' | 'desc' | null;
 
 const ROWS_PER_PAGE = 20;
 
+const formatNumber = (num: number): string => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toLocaleString('es-ES');
+};
+
+const formatDate = (dateStr: string): string => {
+  if (!dateStr) return '-';
+  
+  // Handle MM/DD/YYYY format from Google Sheets
+  const parts = dateStr.split('/');
+  if (parts.length === 3) {
+    const [month, day, year] = parts;
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const monthIndex = parseInt(month, 10) - 1;
+    if (monthIndex >= 0 && monthIndex < 12) {
+      return `${day} ${months[monthIndex]} ${year}`;
+    }
+  }
+  
+  return dateStr;
+};
+
 export function DataTable({ data }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
@@ -89,9 +113,9 @@ export function DataTable({ data }: DataTableProps) {
 
   const exportToCSV = () => {
     const headers = [
-      'Post / Tema', 'Fecha', 'Orgánico / Patrocinado', 'Tipo', 'QUÉ', 'CÓMO',
-      'Visualizaciones', 'Recomendaciones', 'Comentarios', 'Veces compartido',
-      'Impresiones', 'Porcentaje de clics', 'Interacciones', 'Tasa de interacción'
+      'Post_Tema', 'Fecha', 'Organico_Patrocinado', 'Tipo', 'QUE',
+      'Visualizaciones', 'Recomendaciones', 'Comentarios', 'Veces_Compartido',
+      'Impresiones', 'Interacciones', 'Tasa_Interaccion'
     ];
 
     const csvContent = [
@@ -119,13 +143,17 @@ export function DataTable({ data }: DataTableProps) {
   };
 
   const columns = [
-    { key: 'Post / Tema', label: 'Post / Tema', width: 'min-w-[200px]' },
-    { key: 'Fecha', label: 'Fecha', width: 'w-28' },
-    { key: 'Orgánico / Patrocinado', label: 'Tipo', width: 'w-24' },
-    { key: 'Tipo', label: 'Formato', width: 'w-24' },
-    { key: 'Impresiones', label: 'Impresiones', width: 'w-28' },
-    { key: 'Interacciones', label: 'Interacciones', width: 'w-28' },
-    { key: 'Tasa de interacción', label: 'Engagement %', width: 'w-28' },
+    { key: 'Post_Tema', label: 'POST / TEMA', width: 'min-w-[250px]' },
+    { key: 'Fecha', label: 'FECHA', width: 'w-28' },
+    { key: 'Organico_Patrocinado', label: 'TIPO', width: 'w-28' },
+    { key: 'QUE', label: 'CATEGORÍA', width: 'w-28' },
+    { key: 'Visualizaciones', label: 'VIEWS', width: 'w-24' },
+    { key: 'Recomendaciones', label: 'LIKES', width: 'w-24' },
+    { key: 'Comentarios', label: 'COMMENTS', width: 'w-28' },
+    { key: 'Veces_Compartido', label: 'SHARES', width: 'w-24' },
+    { key: 'Impresiones', label: 'IMPR.', width: 'w-24' },
+    { key: 'Interacciones', label: 'INTERACT.', width: 'w-28' },
+    { key: 'Tasa_Interaccion', label: 'ENG. RATE', width: 'w-28' },
   ];
 
   return (
@@ -160,7 +188,7 @@ export function DataTable({ data }: DataTableProps) {
               {columns.map(col => (
                 <TableHead
                   key={col.key}
-                  className={cn('cursor-pointer select-none', col.width)}
+                  className={cn('cursor-pointer select-none whitespace-nowrap', col.width)}
                   onClick={() => handleSort(col.key)}
                 >
                   <div className="flex items-center gap-1">
@@ -181,25 +209,37 @@ export function DataTable({ data }: DataTableProps) {
             ) : (
               paginatedData.map((row, idx) => (
                 <TableRow key={idx} className="data-table-row">
-                  <TableCell className="max-w-[200px] truncate font-medium">
-                    {row['Post / Tema'] || '-'}
+                  <TableCell className="max-w-[250px] truncate font-medium">
+                    {row.Post_Tema || '-'}
                   </TableCell>
-                  <TableCell>{row.Fecha || '-'}</TableCell>
+                  <TableCell className="whitespace-nowrap">{formatDate(row.Fecha)}</TableCell>
                   <TableCell>
-                    <span className={row['Orgánico / Patrocinado'] === 'Orgánico' ? 'badge-organic' : 'badge-sponsored'}>
-                      {row['Orgánico / Patrocinado'] === 'Orgánico' ? 'Orgánico' : 'Patrocinado'}
+                    <span className={row.Organico_Patrocinado === 'Orgánico' ? 'badge-organic' : 'badge-sponsored'}>
+                      {row.Organico_Patrocinado || '-'}
                     </span>
                   </TableCell>
-                  <TableCell>{row.Tipo || '-'}</TableCell>
+                  <TableCell>{row.QUE || '-'}</TableCell>
                   <TableCell className="text-right">
-                    {typeof row.Impresiones === 'number' ? row.Impresiones.toLocaleString('es-ES') : '-'}
+                    {typeof row.Visualizaciones === 'number' ? formatNumber(row.Visualizaciones) : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {typeof row.Recomendaciones === 'number' ? row.Recomendaciones.toLocaleString('es-ES') : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {typeof row.Comentarios === 'number' ? row.Comentarios.toLocaleString('es-ES') : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {typeof row.Veces_Compartido === 'number' ? row.Veces_Compartido.toLocaleString('es-ES') : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {typeof row.Impresiones === 'number' ? formatNumber(row.Impresiones) : '-'}
                   </TableCell>
                   <TableCell className="text-right">
                     {typeof row.Interacciones === 'number' ? row.Interacciones.toLocaleString('es-ES') : '-'}
                   </TableCell>
                   <TableCell className="text-right">
-                    {typeof row['Tasa de interacción'] === 'number' 
-                      ? `${(row['Tasa de interacción'] * 100).toFixed(2)}%` 
+                    {typeof row.Tasa_Interaccion === 'number' 
+                      ? `${(row.Tasa_Interaccion * 100).toFixed(2)}%` 
                       : '-'}
                   </TableCell>
                 </TableRow>
