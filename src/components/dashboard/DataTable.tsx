@@ -124,7 +124,7 @@ export function DataTable({ data }: DataTableProps) {
 
   const exportToCSV = () => {
     const headers = [
-      'Post_Tema', 'Fecha', 'Organico_Patrocinado', 'Tipo', 'QUE',
+      'Post_Tema', 'Fecha', 'Organico_Patrocinado', 'Tipo', 'QUE', 'COMO',
       'Visualizaciones', 'Recomendaciones', 'Comentarios', 'Veces_Compartido',
       'Impresiones', 'Interacciones', 'Tasa_Interaccion'
     ];
@@ -157,9 +157,9 @@ export function DataTable({ data }: DataTableProps) {
     { key: 'Post_Tema', label: 'POST / TEMA', width: 'min-w-[250px]' },
     { key: 'Fecha', label: 'FECHA', width: 'w-28' },
     { key: 'Organico_Patrocinado', label: 'ORG/PAT', width: 'w-24' },
-    { key: 'Tipo', label: 'FORMATO', width: 'w-28' },
-    { key: 'QUE', label: 'TIPO', width: 'w-32' },
-    { key: 'COMO', label: 'QUÉ', width: 'w-28' },
+    { key: 'Tipo', label: 'TIPO', width: 'w-28' },
+    { key: 'QUE', label: 'QUÉ', width: 'w-32' },
+    { key: 'COMO', label: 'CÓMO', width: 'w-28' },
     { key: 'Visualizaciones', label: 'Visualizaciones', width: 'w-28' },
     { key: 'Recomendaciones', label: 'Recomendaciones', width: 'w-32' },
     { key: 'Comentarios', label: 'Comentarios', width: 'w-28' },

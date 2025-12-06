@@ -5,7 +5,7 @@ import { DashboardHeader } from './DashboardHeader';
 import { KPICard } from './KPICard';
 import { DataTable } from './DataTable';
 import { ImpressionsChart } from './ImpressionsChart';
-import { PostTypeChart } from './PostTypeChart';
+import { CategoryDistributionChart } from './CategoryDistributionChart';
 import { EngagementChart } from './EngagementChart';
 import { TopPostsChart } from './TopPostsChart';
 import { FiltersSidebar } from './FiltersSidebar';
@@ -20,6 +20,7 @@ const initialFilters: Filters = {
   tipos: [],
   categorias: [],
   estrategias: [],
+  comos: [],
   minInteractions: 0,
   startDate: undefined,
   endDate: undefined,
@@ -74,18 +75,21 @@ export function LinkedInDashboard() {
       if (isOrganic && !filters.organico) return false;
       if (!isOrganic && !filters.patrocinado) return false;
 
-      // tipos = Formato (Artículo, Video, etc) - filters by post.Tipo
-      if (filters.tipos.length > 0 && !filters.tipos.includes(String(post.Tipo || ''))) {
-        return false;
+      // tipos = Tipo (Noticia, Evento, Servicio, Tema Socios)
+      if (filters.tipos.length > 0) {
+        const postTipo = String(post.Tipo || 'Ninguno');
+        if (!filters.tipos.includes(postTipo) && !(postTipo === '' && filters.tipos.includes('Ninguno'))) {
+          return false;
+        }
       }
 
-      // categorias = Tipo (Noticia, Evento, etc) - filters by post.QUE
+      // categorias = QUÉ (Educamos, Queremos Que Te Vean, etc)
       if (filters.categorias.length > 0 && !filters.categorias.includes(String(post.QUE || ''))) {
         return false;
       }
 
-      // estrategias = QUÉ - filters by post.COMO
-      if (filters.estrategias.length > 0 && !filters.estrategias.includes(String(post.COMO || ''))) {
+      // comos = CÓMO (CambioConstante, SomosIguales, SomosResponsables)
+      if (filters.comos && filters.comos.length > 0 && !filters.comos.includes(String(post.COMO || ''))) {
         return false;
       }
 
@@ -110,7 +114,7 @@ export function LinkedInDashboard() {
       if (!isOrganic && !filters.patrocinado) return false;
       if (filters.tipos.length > 0 && !filters.tipos.includes(String(post.Tipo || ''))) return false;
       if (filters.categorias.length > 0 && !filters.categorias.includes(String(post.QUE || ''))) return false;
-      if (filters.estrategias.length > 0 && !filters.estrategias.includes(String(post.COMO || ''))) return false;
+      if (filters.comos && filters.comos.length > 0 && !filters.comos.includes(String(post.COMO || ''))) return false;
       return true;
     });
   }, [data, filters]);
@@ -234,7 +238,7 @@ export function LinkedInDashboard() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <ImpressionsChart data={filteredData} />
-          <PostTypeChart data={filteredData} />
+          <CategoryDistributionChart data={filteredData} />
           <EngagementChart data={filteredData} />
           <TopPostsChart data={filteredData} />
         </div>

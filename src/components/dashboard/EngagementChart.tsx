@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { LinkedInPost } from '@/types/linkedin';
 import {
   BarChart,
@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
+import { Button } from '@/components/ui/button';
 
 interface EngagementChartProps {
   data: LinkedInPost[];
@@ -21,22 +22,40 @@ const COLORS = [
   'hsl(201, 100%, 48%)',
   'hsl(201, 100%, 54%)',
   'hsl(201, 100%, 60%)',
+  'hsl(160, 84%, 39%)',
+  'hsl(38, 92%, 50%)',
+  'hsl(280, 65%, 60%)',
 ];
 
+type ViewMode = 'QUE' | 'COMO' | 'combined';
+
 export function EngagementChart({ data }: EngagementChartProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>('QUE');
+
   const chartData = useMemo(() => {
     const grouped: Record<string, { total: number; count: number }> = {};
 
     data.forEach(post => {
-      const category = post.QUÉ || 'Sin categoría';
-      const rate = typeof post['Tasa de interacción'] === 'number' ? post['Tasa de interacción'] : 0;
+      let key = '';
+      
+      if (viewMode === 'QUE') {
+        key = post.QUE || 'Sin QUÉ';
+      } else if (viewMode === 'COMO') {
+        key = post.COMO || 'Sin CÓMO';
+      } else {
+        const que = post.QUE || 'Sin QUÉ';
+        const como = post.COMO || 'Sin CÓMO';
+        key = `${que} + ${como}`;
+      }
+      
+      const rate = typeof post.Tasa_Interaccion === 'number' ? post.Tasa_Interaccion : 0;
 
-      if (!grouped[category]) {
-        grouped[category] = { total: 0, count: 0 };
+      if (!grouped[key]) {
+        grouped[key] = { total: 0, count: 0 };
       }
 
-      grouped[category].total += rate;
-      grouped[category].count += 1;
+      grouped[key].total += rate;
+      grouped[key].count += 1;
     });
 
     return Object.entries(grouped)
@@ -46,11 +65,48 @@ export function EngagementChart({ data }: EngagementChartProps) {
         avgEngagement: values.count > 0 ? (values.total / values.count) * 100 : 0
       }))
       .sort((a, b) => b.avgEngagement - a.avgEngagement);
-  }, [data]);
+  }, [data, viewMode]);
+
+  const getTitle = () => {
+    switch (viewMode) {
+      case 'QUE': return 'Engagement por QUÉ';
+      case 'COMO': return 'Engagement por CÓMO';
+      case 'combined': return 'Engagement QUÉ + CÓMO';
+    }
+  };
 
   return (
     <div className="chart-container animate-fade-in" style={{ animationDelay: '700ms' }}>
-      <h3 className="mb-4 text-lg font-semibold text-foreground">Engagement por Categoría (QUÉ)</h3>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-lg font-semibold text-foreground">{getTitle()}</h3>
+        
+        <div className="flex gap-1 rounded-lg bg-muted p-1">
+          <Button
+            variant={viewMode === 'QUE' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('QUE')}
+            className="text-xs"
+          >
+            QUÉ
+          </Button>
+          <Button
+            variant={viewMode === 'COMO' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('COMO')}
+            className="text-xs"
+          >
+            CÓMO
+          </Button>
+          <Button
+            variant={viewMode === 'combined' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('combined')}
+            className="text-xs"
+          >
+            Combinado
+          </Button>
+        </div>
+      </div>
       
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
