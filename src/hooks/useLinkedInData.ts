@@ -1,22 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-
-export interface LinkedInPost {
-  'Post / Tema': string;
-  Fecha: string;
-  'Orgánico / Patrocinado': string;
-  Tipo: string;
-  QUÉ: string;
-  CÓMO: string;
-  Visualizaciones: number;
-  Recomendaciones: number;
-  Comentarios: number;
-  'Veces compartido': number;
-  Impresiones: number;
-  'Porcentaje de clics': number;
-  Interacciones: number;
-  'Tasa de interacción': number;
-  [key: string]: string | number;
-}
+import type { LinkedInPost } from '@/types/linkedin';
 
 interface UseLinkedInDataReturn {
   data: LinkedInPost[];
@@ -49,7 +32,7 @@ export function useLinkedInData(): UseLinkedInDataReturn {
       const jsonString = text.substring(47).slice(0, -2);
       const rawJson = JSON.parse(jsonString);
 
-      const columns = rawJson.table.cols.map((col: { label: string }) => col.label);
+      const columns: string[] = rawJson.table.cols.map((col: { label: string }) => col.label);
 
       const transformedData: LinkedInPost[] = rawJson.table.rows.map((row: { c: Array<{ v?: unknown; f?: string } | null> }) => {
         const rowObject: Record<string, string | number> = {};
@@ -89,8 +72,6 @@ export function useLinkedInData(): UseLinkedInDataReturn {
 
   useEffect(() => {
     fetchData();
-
-    // Refresh every 5 minutes
     const interval = setInterval(fetchData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchData]);

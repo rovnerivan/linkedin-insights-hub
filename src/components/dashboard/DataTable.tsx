@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { LinkedInPost } from '@/hooks/useLinkedInData';
+import type { LinkedInPost } from '@/types/linkedin';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { 
@@ -52,7 +52,6 @@ export function DataTable({ data }: DataTableProps) {
   const filteredAndSortedData = useMemo(() => {
     let result = [...data];
 
-    // Filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(row => 
@@ -62,7 +61,6 @@ export function DataTable({ data }: DataTableProps) {
       );
     }
 
-    // Sort
     if (sortColumn && sortDirection) {
       result.sort((a, b) => {
         const aVal = a[sortColumn];

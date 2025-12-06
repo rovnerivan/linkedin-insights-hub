@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
-import { useLinkedInData, LinkedInPost } from '@/hooks/useLinkedInData';
+import { useLinkedInData } from '@/hooks/useLinkedInData';
+import type { LinkedInPost, Filters } from '@/types/linkedin';
 import { DashboardHeader } from './DashboardHeader';
 import { KPICard } from './KPICard';
 import { DataTable } from './DataTable';
@@ -7,7 +8,7 @@ import { ImpressionsChart } from './ImpressionsChart';
 import { PostTypeChart } from './PostTypeChart';
 import { EngagementChart } from './EngagementChart';
 import { TopPostsChart } from './TopPostsChart';
-import { FiltersSidebar, Filters } from './FiltersSidebar';
+import { FiltersSidebar } from './FiltersSidebar';
 import { PeriodComparison } from './PeriodComparison';
 import { LoadingSkeleton } from './LoadingSkeleton';
 import { ErrorState } from './ErrorState';
@@ -35,21 +36,21 @@ const parseDate = (dateStr: string): Date | null => {
     const isoDate = parseISO(dateStr);
     if (!isNaN(isoDate.getTime())) return isoDate;
   } catch {
-    // Continue to next format
+    // Continue
   }
   
   try {
     const parsed = parse(dateStr, 'dd/MM/yyyy', new Date());
     if (!isNaN(parsed.getTime())) return parsed;
   } catch {
-    // Continue to next format
+    // Continue
   }
   
   try {
     const parsed = parse(dateStr, 'yyyy-MM-dd', new Date());
     if (!isNaN(parsed.getTime())) return parsed;
   } catch {
-    // Return null if no format works
+    // Return null
   }
   
   return null;
@@ -65,7 +66,6 @@ const filterDataByDateRange = (
   return data.filter(post => {
     const postDate = parseDate(post.Fecha);
     if (!postDate) return false;
-    
     return isWithinInterval(postDate, { start: startDate, end: endDate });
   });
 };

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { LinkedInPost } from '@/hooks/useLinkedInData';
+import type { LinkedInPost, Filters } from '@/types/linkedin';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -7,20 +7,6 @@ import { Slider } from '@/components/ui/slider';
 import { Filter, RotateCcw, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DateRangePicker } from './DateRangePicker';
-
-export interface Filters {
-  organico: boolean;
-  patrocinado: boolean;
-  tipos: string[];
-  categorias: string[];
-  estrategias: string[];
-  minInteractions: number;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-  compareStartDate: Date | undefined;
-  compareEndDate: Date | undefined;
-  comparisonMode: boolean;
-}
 
 interface FiltersSidebarProps {
   data: LinkedInPost[];
